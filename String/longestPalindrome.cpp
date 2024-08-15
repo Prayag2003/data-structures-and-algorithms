@@ -1,51 +1,61 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
+#include <vector>
+
 using namespace std;
 
-string expandAroundCenter(string s, int l, int r)
+string preprocess(const string &s)
 {
-    while (l >= 0 && r < s.size() && s[l] == s[r])
+    string result = "#";
+    for (char c : s)
     {
-        --l;
-        ++r;
+        result += c;
+        result += "#";
     }
-    return s.substr(l + 1, r - l - 1);
+    return result;
 }
 
-bool isPalindrome(string s)
+string manacher(const string &s)
 {
-    int l = 0, r = s.size() - 1;
-    while (l <= r)
+    string t = preprocess(s);
+    int n = t.size();
+    vector<int> p(n, 0);
+    int center = 0, right = 0;
+
+    for (int i = 0; i < n; ++i)
     {
-        if (s[l] != s[r])
-            return false;
+        if (i < right)
+        {
+            p[i] = min(right - i, p[2 * center - i]);
+        }
+        while (i + p[i] + 1 < n && i - p[i] - 1 >= 0 && t[i + p[i] + 1] == t[i - p[i] - 1])
+        {
+            ++p[i];
+        }
+        if (i + p[i] > right)
+        {
+            center = i;
+            right = i + p[i];
+        }
     }
-    return true;
-}
 
-string longestPalindrome(string s)
-{
-    if (isPalindrome(s))
-        return s;
-    if (s.empty())
-        return "";
-
-    string longest = "";
-    for (int i = 0; i < s.size(); ++i)
+    int maxLen = 0, start = 0;
+    for (int i = 0; i < n; ++i)
     {
-        string oddPalindrome = expandAroundCenter(s, i, i);
-        if (oddPalindrome.size() > longest.size())
-            longest = oddPalindrome;
-
-        string evenPalindrome = expandAroundCenter(s, i, i + 1);
-        if (evenPalindrome.size() > longest.size())
-            longest = evenPalindrome;
+        if (p[i] > maxLen)
+        {
+            maxLen = p[i];
+            start = i;
+        }
     }
-    return longest;
+
+    return s.substr((start - maxLen) / 2, maxLen);
 }
 
 int main()
 {
-    string s;
-    cin >> s;
-    cout << longestPalindrome(s);
+    string input;
+    cin >> input;
+    cout << manacher(input) << endl;
+    return 0;
 }
