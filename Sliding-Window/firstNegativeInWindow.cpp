@@ -55,7 +55,6 @@ vector<long long> printFirstNegativeInteger(
 
         else if (j - i + 1 == K)
         {
-            // if there is no element in the arr
             if (!queue.empty())
             {
                 ans.push_back(queue.front());
